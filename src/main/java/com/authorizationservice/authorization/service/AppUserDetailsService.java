@@ -25,16 +25,22 @@ public class AppUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		log.info("BEGIN - [loadUserByUsername()]");
 		log.debug("Username : " + userName);
-		AuthenticationRequest authenticationRequest = authRequestRepo.findById(userName).get();
-		UserDetails user = new User(authenticationRequest.getUsername(), authenticationRequest.getPassword(),
-				new ArrayList<>());
-		log.debug("User : " + user);
-		log.info("END - [loadUserByUsername()]");
-		return user;
+		AuthenticationRequest authenticationRequest;
+		
+		if(authRequestRepo.findById(userName).get() != null) {
+			authenticationRequest = authRequestRepo.findById(userName).get();
+			UserDetails user = new User(authenticationRequest.getUsername(), authenticationRequest.getPassword(),
+					new ArrayList<>());
+			log.debug("User : " + user);
+			log.info("END - [loadUserByUsername()]");
+			return user;
+		}
+		
+		throw new UsernameNotFoundException("User not found!!");
 	}
 
 	public AuthenticationRequest getUser(String userName) {
-		return authRequestRepo.findById(userName).orElseThrow();
+		return authRequestRepo.findById(userName).get();
 	}
 
 	public void saveUser(AuthenticationRequest user) {
